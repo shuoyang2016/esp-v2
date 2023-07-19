@@ -34,7 +34,8 @@ namespace path_rewrite {
 class FilterTest : public ::testing::Test {
  protected:
   void SetUp() override {
-    filter_config_ = std::make_shared<FilterConfig>("", scope_);
+    filter_config_ =
+        std::make_shared<FilterConfig>("", *stats_store_.rootScope());
     mock_route_ = std::make_shared<NiceMock<Envoy::Router::MockRoute>>();
 
     filter_ = std::make_unique<Filter>(filter_config_);
@@ -46,7 +47,7 @@ class FilterTest : public ::testing::Test {
         std::make_shared<PerRouteFilterConfig>(std::move(mock_parser));
   }
 
-  NiceMock<Envoy::Stats::MockIsolatedStatsStore> scope_;
+  NiceMock<Envoy::Stats::MockIsolatedStatsStore> stats_store_;
 
   std::shared_ptr<NiceMock<MockConfigParser>> mock_config_parser_;
   std::shared_ptr<FilterConfig> filter_config_;
@@ -76,7 +77,8 @@ TEST_F(FilterTest, NoPathHeaderBlocked) {
 
   // Stats.
   const Envoy::Stats::CounterSharedPtr counter =
-      Envoy::TestUtility::findCounter(scope_, "path_rewrite.denied_by_no_path");
+      Envoy::TestUtility::findCounter(stats_store_,
+                                      "path_rewrite.denied_by_no_path");
   EXPECT_NE(counter, nullptr);
   EXPECT_EQ(counter->value(), 1);
 }
@@ -100,7 +102,7 @@ TEST_F(FilterTest, DecodeHeadersOverflowWildcard) {
 
   // Stats.
   const Envoy::Stats::CounterSharedPtr counter =
-      Envoy::TestUtility::findCounter(scope_,
+      Envoy::TestUtility::findCounter(stats_store_,
                                       "path_rewrite.denied_by_oversize_path");
   EXPECT_NE(counter, nullptr);
   EXPECT_EQ(counter->value(), 1);
@@ -126,7 +128,7 @@ TEST_F(FilterTest, FragmentPathHeaderBlocked) {
 
   // Stats.
   const Envoy::Stats::CounterSharedPtr counter =
-      Envoy::TestUtility::findCounter(scope_,
+      Envoy::TestUtility::findCounter(stats_store_,
                                       "path_rewrite.denied_by_invalid_path");
   EXPECT_NE(counter, nullptr);
   EXPECT_EQ(counter->value(), 1);
@@ -161,7 +163,8 @@ TEST_F(FilterTest, NotPerRouteConfigNotChanged) {
 
   // Stats.
   const Envoy::Stats::CounterSharedPtr counter =
-      Envoy::TestUtility::findCounter(scope_, "path_rewrite.path_not_changed");
+      Envoy::TestUtility::findCounter(stats_store_,
+                                      "path_rewrite.path_not_changed");
   EXPECT_NE(counter, nullptr);
   EXPECT_EQ(counter->value(), 1);
 }
@@ -200,7 +203,7 @@ TEST_F(FilterTest, RejectedByMismatchUrlTemplate) {
   // Stats.
   const Envoy::Stats::CounterSharedPtr counter =
       Envoy::TestUtility::findCounter(
-          scope_, "path_rewrite.denied_by_url_template_mismatch");
+          stats_store_, "path_rewrite.denied_by_url_template_mismatch");
   EXPECT_NE(counter, nullptr);
   EXPECT_EQ(counter->value(), 1);
 }
@@ -231,7 +234,8 @@ TEST_F(FilterTest, PathUpdated) {
 
   // Stats.
   const Envoy::Stats::CounterSharedPtr counter =
-      Envoy::TestUtility::findCounter(scope_, "path_rewrite.path_changed");
+      Envoy::TestUtility::findCounter(stats_store_,
+                                      "path_rewrite.path_changed");
   EXPECT_NE(counter, nullptr);
   EXPECT_EQ(counter->value(), 1);
 }

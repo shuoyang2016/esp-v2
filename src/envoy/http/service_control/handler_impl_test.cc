@@ -162,8 +162,8 @@ requirements {
 class HandlerTest : public ::testing::Test {
  protected:
   HandlerTest()
-      : stats_(ServiceControlFilterStats::create(Envoy::EMPTY_STRING,
-                                                 mock_stats_scope_)) {}
+      : stats_(ServiceControlFilterStats::create(
+            Envoy::EMPTY_STRING, *mock_stats_store_.rootScope())) {}
 
   ~HandlerTest() {}
 
@@ -209,7 +209,7 @@ class HandlerTest : public ::testing::Test {
             }));
   }
 
-  testing::NiceMock<Envoy::Stats::MockIsolatedStatsStore> mock_stats_scope_;
+  testing::NiceMock<Envoy::Stats::MockIsolatedStatsStore> mock_stats_store_;
   ServiceControlFilterStats stats_;
 
   testing::NiceMock<MockCheckDoneCallback> mock_check_done_callback_;

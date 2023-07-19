@@ -37,6 +37,11 @@ alias(
     actual = "@envoy//source/exe:envoy_main_entry_lib",
 )
 
+alias(
+    name = "health_check_lib",
+    actual = "@envoy//source/extensions/health_checkers/grpc:health_checker_lib",
+)
+
 envoy_cc_binary(
     name = "envoy",
     repository = "@envoy",
@@ -44,6 +49,7 @@ envoy_cc_binary(
         ":backend_auth",
         ":grpc_metadata_scrubber",
         ":header_sanitizer",
+        ":health_check_lib",
         ":main",
         ":path_rewrite",
         ":service_control",

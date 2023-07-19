@@ -48,8 +48,8 @@ const Status kBadStatus(StatusCode::kUnauthenticated, "test");
 class ServiceControlFilterTest : public ::testing::Test {
  protected:
   ServiceControlFilterTest()
-      : stats_(ServiceControlFilterStats::create(Envoy::EMPTY_STRING,
-                                                 mock_stats_scope_)),
+      : stats_(ServiceControlFilterStats::create(
+            Envoy::EMPTY_STRING, *mock_stats_store_.rootScope())),
         req_headers_{{":method", "GET"}, {":path", "/bar"}} {}
 
   void SetUp() override {
@@ -73,7 +73,7 @@ class ServiceControlFilterTest : public ::testing::Test {
   testing::NiceMock<MockServiceControlHandler>* mock_handler_;
   ServiceControlHandlerPtr mock_handler_ptr_;
   testing::NiceMock<Envoy::MockBuffer> mock_buffer_;
-  testing::NiceMock<Envoy::Stats::MockIsolatedStatsStore> mock_stats_scope_;
+  testing::NiceMock<Envoy::Stats::MockIsolatedStatsStore> mock_stats_store_;
   ServiceControlFilterStats stats_;
   std::shared_ptr<NiceMock<Envoy::Router::MockRoute>> mock_route_;
   Envoy::Http::TestRequestHeaderMapImpl req_headers_;
